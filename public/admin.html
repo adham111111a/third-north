@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>لوحة الأدمن — التالتة شمال</title>
+<style>
+  :root { --red:#d21034; --bg:#0d0d0f; --card:#1a1a1e; --line:#2c2c31; --txt:#f5f5f5; --muted:#a9a9b0; --green:#22c55e; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif; background:var(--bg); color:var(--txt); min-height:100vh; }
+  .wrap { max-width:760px; margin:0 auto; padding:20px 16px 48px; }
+  header { text-align:center; margin:8px 0 20px; }
+  h1 { font-size:26px; margin:6px 0 2px; }
+  .sub { color:var(--muted); font-size:14px; margin:0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; margin-top:14px; }
+  label { display:block; font-size:14px; margin:0 0 6px; color:#ddd; }
+  input[type=password], input[type=text] { width:100%; padding:13px 14px; border-radius:12px; border:1px solid var(--line); background:#111; color:#fff; font-size:18px; outline:none; text-align:center; letter-spacing:6px; }
+  input[type=password]:focus { border-color:var(--red); }
+  button { font-family:inherit; cursor:pointer; }
+  .btn { padding:12px 18px; border-radius:12px; border:0; font-size:15px; font-weight:700; background:var(--red); color:#fff; }
+  .btn.ghost { background:transparent; border:1px solid var(--line); color:#ddd; }
+  .btn.danger { background:#7f1d1d; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .err { color:#fca5a5; font-size:14px; margin-top:10px; display:none; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+  .stat { background:#111; border:1px solid var(--line); border-radius:14px; padding:14px; text-align:center; }
+  .stat b { font-size:26px; display:block; }
+  .stat span { color:var(--muted); font-size:13px; }
+  .toolbar { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .row { display:flex; gap:12px; background:#111; border:1px solid var(--line); border-radius:14px; padding:12px; margin-top:10px; align-items:flex-start; }
+  .row img { width:92px; height:92px; object-fit:cover; border-radius:10px; flex:none; background:#222; }
+  .row .info { flex:1; min-width:0; }
+  .row .info b { font-size:16px; }
+  .row .info p { margin:4px 0; color:var(--muted); font-size:13px; line-height:1.7; word-break:break-word; }
+  .sec-tag { display:inline-block; background:#26262b; border:1px solid var(--line); border-radius:999px; padding:2px 10px; font-size:12px; color:#ddd; }
+  .empty { text-align:center; color:var(--muted); padding:28px 10px; line-height:1.9; }
+  .hidden { display:none !important; }
+  footer { text-align:center; margin-top:26px; }
+  footer a { color:var(--muted); font-size:13px; text-decoration:none; }
+  h2.sec { font-size:17px; margin:18px 0 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🦅 لوحة الأدمن</h1>
+    <p class="sub">التالتة شمال — مين بصم وامتى ومن أنهي سكشن</p>
+  </header>
+
+  <div id="login-view" class="card">
+    <label for="pin">الرقم السري</label>
+    <input type="password" id="pin" inputmode="numeric" maxlength="8" placeholder="••••" autocomplete="off">
+    <div style="margin-top:14px"><button class="btn" id="login-btn" style="width:100%">دخول</button></div>
+    <p class="err" id="login-err">الرقم السري غلط، حاول تاني.</p>
+  </div>
+
+  <div id="dash-view" class="hidden">
+    <div class="stats">
+      <div class="stat"><b id="st-total">0</b><span>إجمالي البصمات</span></div>
+      <div class="stat"><b id="st-today">0</b><span>بصمات النهاردة</span></div>
+      <div class="stat"><b id="st-sections">0</b><span>عدد السكاشن</span></div>
+    </div>
+    <div class="card">
+      <b>البصمات لكل سكشن</b>
+      <div id="by-section" style="margin-top:8px;color:var(--muted);font-size:14px;line-height:2"></div>
+    </div>
+    <div class="toolbar">
+      <button class="btn ghost" id="refresh-btn">↻ تحديث</button>
+      <button class="btn ghost" id="export-btn">⬇ تنزيل الشيت (CSV)</button>
+    </div>
+    <h2 class="sec">كل البصمات</h2>
+    <div id="list"></div>
+  </div>
+
+  <footer><a href="/">← رجوع لصفحة البصمة</a></footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  if (r.status === 401) { showLogin(); throw new Error('unauthorized'); }
+  return r;
+}
+function showLogin() { $('dash-view').classList.add('hidden'); $('login-view').classList.remove('hidden'); }
+function showDash() { $('login-view').classList.add('hidden'); $('dash-view').classList.remove('hidden'); }
+
+$('login-btn').addEventListener('click', doLogin);
+$('pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+async function doLogin() {
+  const pin = $('pin').value.trim();
+  if (!pin) return;
+  $('login-btn').disabled = true;
+  try {
+    const r = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ pin }) });
+    if (!r.ok) { $('login-err').style.display = 'block'; $('login-btn').disabled = false; return; }
+    $('login-err').style.display = 'none';
+    showDash(); loadAll();
+  } catch(e) { $('login-err').textContent = 'مفيش اتصال بالسيرفر.'; $('login-err').style.display = 'block'; }
+  $('login-btn').disabled = false;
+}
+
+async function loadAll() {
+  try {
+    const [s, l] = await Promise.all([ api('/api/admin/stats'), api('/api/admin/checkins') ]);
+    const stats = await s.json(), list = await l.json();
+    $('st-total').textContent = stats.total;
+    $('st-today').textContent = stats.today;
+    $('st-sections').textContent = Object.keys(stats.bySection).length;
+    $('by-section').innerHTML = Object.keys(stats.bySection).length
+      ? Object.entries(stats.bySection).map(([k,v]) => `<span class="sec-tag">${k}: ${v}</span>`).join(' ')
+      : 'لسه مفيش بصمات.';
+    const box = $('list');
+    if (!list.checkins.length) { box.innerHTML = '<div class="empty">لسه محدش بصم.<br>أول بصمة هتظهر هنا على طول.</div>'; return; }
+    box.innerHTML = '';
+    for (const c of list.checkins) {
+      const div = document.createElement('div');
+      div.className = 'row';
+      div.innerHTML = `<img src="${c.photo}" alt="صورة إثبات" loading="lazy">
+        <div class="info"><b>${escapeHtml(c.name)}</b> <span class="sec-tag">${escapeHtml(c.section)}</span>
+        <p>🕐 ${escapeHtml(c.createdAtCairo)}<br>📍 على بُعد ${c.distanceM} متر من مركز الاستاد</p></div>
+        <button class="btn danger" data-id="${c.id}">حذف</button>`;
+      div.querySelector('button').addEventListener('click', async (ev) => {
+        if (!confirm(`تحذف بصمة ${c.name}؟`)) return;
+        ev.target.disabled = true;
+        await api('/api/admin/checkins/' + c.id, { method:'DELETE' });
+        loadAll();
+      });
+      box.appendChild(div);
+    }
+  } catch(e) { /* unauthorized handled in api() */ }
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+$('refresh-btn').addEventListener('click', loadAll);
+$('export-btn').addEventListener('click', () => { window.location = '/api/admin/export'; });
+
+// try to load dashboard directly if a session cookie already exists
+(async () => {
+  try {
+    const r = await fetch('/api/admin/stats');
+    if (r.ok) { showDash(); loadAll(); }
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>

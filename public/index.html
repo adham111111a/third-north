@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>التالتة شمال — بصمة الحضور</title>
+<style>
+  :root { --red:#d21034; --red-dark:#9c0b26; --bg:#0d0d0f; --card:#1a1a1e; --line:#2c2c31; --txt:#f5f5f5; --muted:#a9a9b0; --green:#22c55e; --amber:#f59e0b; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif; background:var(--bg); color:var(--txt); min-height:100vh; }
+  .wrap { max-width:520px; margin:0 auto; padding:20px 16px 48px; }
+  header { text-align:center; margin:8px 0 20px; }
+  header .badge { display:inline-block; background:var(--red); color:#fff; font-weight:800; padding:6px 16px; border-radius:999px; font-size:14px; letter-spacing:.5px; }
+  h1 { font-size:34px; margin:12px 0 4px; }
+  .sub { color:var(--muted); font-size:15px; margin:0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; margin-top:14px; }
+  .step { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
+  .num { width:28px; height:28px; border-radius:50%; background:var(--red); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none; font-size:15px; }
+  .step h2 { font-size:17px; margin:0; }
+  .step p { margin:2px 0 0; color:var(--muted); font-size:13px; }
+  label { display:block; font-size:14px; margin:12px 0 6px; color:#ddd; }
+  input[type=text] { width:100%; padding:13px 14px; border-radius:12px; border:1px solid var(--line); background:#111; color:#fff; font-size:16px; outline:none; }
+  input[type=text]:focus { border-color:var(--red); }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .chip { border:1px solid var(--line); background:#222; color:#eee; border-radius:999px; padding:7px 13px; font-size:13px; cursor:pointer; }
+  .chip.on { background:var(--red); border-color:var(--red); color:#fff; }
+  button { font-family:inherit; cursor:pointer; }
+  .btn { width:100%; padding:14px; border-radius:12px; border:0; font-size:16px; font-weight:700; background:#2a2a2f; color:#fff; }
+  .btn.primary { background:var(--red); }
+  .btn.primary:disabled { background:#3a3a3f; color:#888; cursor:not-allowed; }
+  .btn.ghost { background:transparent; border:1px solid var(--line); color:#ddd; }
+  .status { margin-top:10px; font-size:14px; line-height:1.7; border-radius:10px; padding:10px 12px; display:none; }
+  .status.show { display:block; }
+  .status.ok { background:#052e16; color:#86efac; }
+  .status.bad { background:#450a0a; color:#fca5a5; }
+  .status.info { background:#172554; color:#bfdbfe; }
+  #video { width:100%; border-radius:12px; background:#000; display:none; margin-top:10px; }
+  #preview { width:100%; border-radius:12px; display:none; margin-top:10px; }
+  .big { width:100%; padding:20px; border-radius:18px; border:0; background:var(--red); color:#fff; font-size:22px; font-weight:900; margin-top:6px; }
+  .big:disabled { background:#333; color:#777; cursor:not-allowed; }
+  .hint { text-align:center; color:var(--muted); font-size:13px; margin-top:10px; line-height:1.7; }
+  .done { text-align:center; padding:30px 10px; }
+  .done .tick { font-size:64px; }
+  .done h2 { font-size:24px; margin:8px 0; }
+  .done p { color:var(--muted); line-height:1.9; }
+  footer { text-align:center; margin-top:26px; }
+  footer a { color:var(--muted); font-size:13px; text-decoration:none; }
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="badge">النادي الأهلي</span>
+    <h1>🦅 التالتة شمال</h1>
+    <p class="sub">بصمة حضور جمهور التالتة شمال — استاد القاهرة الدولي</p>
+  </header>
+
+  <div id="form-view">
+    <div class="card">
+      <div class="step"><span class="num">1</span><div><h2>بياناتك</h2><p>اكتب اسمك والسكشن اللي انت قاعد فيه</p></div></div>
+      <label for="name">الاسم</label>
+      <input type="text" id="name" placeholder="مثال: أحمد محمد" autocomplete="name" maxlength="80">
+      <label for="section">السكشن</label>
+      <input type="text" id="section" placeholder="مثال: التالتة شمال علوية" maxlength="80" list="sections">
+      <datalist id="sections">
+        <option value="التالتة شمال علوية"></option>
+        <option value="التالتة شمال سفلية"></option>
+        <option value="التالتة شمال يمين"></option>
+        <option value="التالتة شمال شمال"></option>
+      </datalist>
+      <div class="chips" id="chips">
+        <button type="button" class="chip" data-v="التالتة شمال علوية">علوية</button>
+        <button type="button" class="chip" data-v="التالتة شمال سفلية">سفلية</button>
+        <button type="button" class="chip" data-v="التالتة شمال يمين">يمين</button>
+        <button type="button" class="chip" data-v="التالتة شمال شمال">شمال</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="step"><span class="num">2</span><div><h2>مكانك</h2><p>البصمة بتشتغل بس وانت جوه استاد القاهرة (600 متر حوالين الاستاد)</p></div></div>
+      <button class="btn primary" id="loc-btn" type="button">📍 حدّد موقعي</button>
+      <div class="status" id="loc-status"></div>
+    </div>
+
+    <div class="card">
+      <div class="step"><span class="num">3</span><div><h2>صورة إثبات</h2><p>صوّر صورة لايف بالكاميرا من مكانك — مينفعش تختار صورة من المعرض</p></div></div>
+      <button class="btn primary" id="cam-btn" type="button">📷 افتح الكاميرا</button>
+      <video id="video" playsinline muted></video>
+      <button class="btn primary hidden" id="snap-btn" type="button" style="margin-top:10px">التقط الصورة</button>
+      <img id="preview" alt="صورة الإثبات">
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn ghost hidden" id="retake-btn" type="button">إعادة التصوير</button>
+      </div>
+      <input type="file" id="file-input" accept="image/*" capture="environment" class="hidden">
+      <div class="status" id="cam-status"></div>
+    </div>
+
+    <div class="card">
+      <button class="big" id="checkin-btn" type="button" disabled>👆 بصمة الحضور</button>
+      <p class="hint" id="ready-hint">كمّل الخطوات التلاتة عشان زرار البصمة يشتغل</p>
+      <div class="status" id="submit-status"></div>
+    </div>
+  </div>
+
+  <div id="done-view" class="card done hidden">
+    <div class="tick">✅</div>
+    <h2>تمت البصمة يا بطل!</h2>
+    <p id="done-text"></p>
+    <button class="btn ghost" type="button" onclick="location.reload()">بصمة جديدة</button>
+  </div>
+
+  <footer><a href="/admin.html">لوحة الأدمن</a></footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const state = { lat:null, lng:null, distance:null, inStadium:false, photo:null };
+const STADIUM = { lat:30.0722, lng:31.3035 };
+
+function haversineM(lat1, lng1, lat2, lng2) {
+  const R = 6371000, toRad = d => d*Math.PI/180;
+  const dLat = toRad(lat2-lat1), dLng = toRad(lng2-lng1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(a));
+}
+function show(el, msg, kind) { el.textContent = msg; el.className = 'status show ' + (kind||''); }
+function updateReady() {
+  const ok = $('name').value.trim() && $('section').value.trim() && state.inStadium && state.photo;
+  $('checkin-btn').disabled = !ok;
+  $('ready-hint').textContent = ok ? 'جاهز! دوس على زرار البصمة 👆'
+    : (!state.inStadium ? 'لازم تكون جوه استاد القاهرة عشان تبصم'
+    : !state.photo ? 'لازم تصوّر صورة إثبات بالكاميرا'
+    : 'كمّل اسمك والسكشن');
+}
+
+document.querySelectorAll('#chips .chip').forEach(ch => {
+  ch.addEventListener('click', () => {
+    document.querySelectorAll('#chips .chip').forEach(c => c.classList.remove('on'));
+    ch.classList.add('on');
+    $('section').value = ch.dataset.v;
+    updateReady();
+  });
+});
+['name','section'].forEach(id => $(id).addEventListener('input', updateReady));
+
+// ---- location ----
+$('loc-btn').addEventListener('click', () => {
+  if (!navigator.geolocation) { show($('loc-status'), 'المتصفح ده مش بيدعم تحديد الموقع.', 'bad'); return; }
+  show($('loc-status'), 'جارٍ تحديد موقعك...', 'info');
+  navigator.geolocation.getCurrentPosition(pos => {
+    state.lat = pos.coords.latitude; state.lng = pos.coords.longitude;
+    state.distance = Math.round(haversineM(STADIUM.lat, STADIUM.lng, state.lat, state.lng));
+    state.inStadium = state.distance <= 600;
+    if (state.inStadium) show($('loc-status'), `✅ انت جوه الاستاد — المسافة من مركز الاستاد ${state.distance} متر`, 'ok');
+    else show($('loc-status'), `❌ انت برّه الاستاد — المسافة ${state.distance} متر. البصمة بتشتغل بس جوه استاد القاهرة.`, 'bad');
+    updateReady();
+  }, err => {
+    show($('loc-status'), 'مقدرناش نحدد موقعك. فعّل الـ GPS واسمح للمتصفح بالوصول لموقعك وحاول تاني.', 'bad');
+  }, { enableHighAccuracy:true, timeout:15000, maximumAge:0 });
+});
+
+// ---- camera: live getUserMedia first, capture input as fallback ----
+let stream = null;
+function stopStream() { if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } $('video').style.display='none'; $('snap-btn').classList.add('hidden'); }
+function setPhoto(dataUrl) {
+  state.photo = dataUrl;
+  $('preview').src = dataUrl; $('preview').style.display='block';
+  $('retake-btn').classList.remove('hidden');
+  show($('cam-status'), '✅ الصورة اتاخدت', 'ok');
+  stopStream(); updateReady();
+}
+$('cam-btn').addEventListener('click', async () => {
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' }, audio:false });
+      const v = $('video'); v.srcObject = stream; v.style.display='block'; v.play();
+      $('snap-btn').classList.remove('hidden');
+      show($('cam-status'), 'الكاميرا شغالة — وجّهها للمكان ودوس "التقط الصورة"', 'info');
+      return;
+    } catch(e) { /* fall through to file input */ }
+  }
+  $('file-input').click();
+});
+$('snap-btn').addEventListener('click', () => {
+  const v = $('video');
+  const canvas = document.createElement('canvas');
+  const w = v.videoWidth, h = v.videoHeight;
+  const scale = Math.min(1, 1024 / Math.max(w, h));
+  canvas.width = Math.round(w*scale); canvas.height = Math.round(h*scale);
+  canvas.getContext('2d').drawImage(v, 0, 0, canvas.width, canvas.height);
+  setPhoto(canvas.toDataURL('image/jpeg', 0.82));
+});
+$('file-input').addEventListener('change', (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 1024 / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width*scale); canvas.height = Math.round(img.height*scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      setPhoto(canvas.toDataURL('image/jpeg', 0.82));
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(f);
+});
+$('retake-btn').addEventListener('click', () => {
+  state.photo = null; $('preview').style.display='none'; $('retake-btn').classList.add('hidden');
+  show($('cam-status'), '', ''); updateReady();
+});
+
+// ---- submit ----
+$('checkin-btn').addEventListener('click', async () => {
+  const btn = $('checkin-btn'); btn.disabled = true; btn.textContent = 'جارٍ تسجيل البصمة...';
+  try {
+    const r = await fetch('/api/checkin', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name:$('name').value.trim(), section:$('section').value.trim(), lat:state.lat, lng:state.lng, photo:state.photo }) });
+    const j = await r.json();
+    if (!r.ok) {
+      if (j.error === 'outside') show($('submit-status'), `❌ انت برّه الاستاد (المسافة ${j.distanceM} متر). البصمة بتشتغل بس جوه استاد القاهرة.`, 'bad');
+      else if (j.error === 'photo_required') show($('submit-status'), 'لازم تصوّر صورة إثبات بالكاميرا الأول.', 'bad');
+      else show($('submit-status'), 'حصلت مشكلة، حاول تاني.', 'bad');
+      btn.disabled = false; btn.textContent = '👆 بصمة الحضور'; return;
+    }
+    $('form-view').classList.add('hidden');
+    $('done-view').classList.remove('hidden');
+    $('done-text').textContent = `${j.checkin.name} — ${j.checkin.section} • ${j.checkin.createdAtCairo} • على بُعد ${j.checkin.distanceM} متر من مركز الاستاد`;
+  } catch(e) {
+    show($('submit-status'), 'مفيش اتصال بالسيرفر، اتأكد من النت وحاول تاني.', 'bad');
+    btn.disabled = false; btn.textContent = '👆 بصمة الحضور';
+  }
+});
+updateReady();
+</script>
+</body>
+</html>
